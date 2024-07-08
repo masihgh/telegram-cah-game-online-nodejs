@@ -6,6 +6,17 @@ class GameComposer extends Composer {
     constructor() {
         super();
 
+        // Bind methods to the class instance
+        this.isGroupChat = this.isGroupChat.bind(this);
+        this.isRegisteredUser = this.isRegisteredUser.bind(this);
+        this.createGame = this.createGame.bind(this);
+        this.showJoinButton = this.showJoinButton.bind(this);
+        this.showLeaveButton = this.showLeaveButton.bind(this);
+        this.joinGame = this.joinGame.bind(this);
+        this.leaveGame = this.leaveGame.bind(this);
+        this.showPlayersList = this.showPlayersList.bind(this);
+        this.deleteGame = this.deleteGame.bind(this);
+
         this.command('creategame', this.createGame);
         this.command('join', this.showJoinButton);
         this.command('leave', this.showLeaveButton);
@@ -149,7 +160,7 @@ class GameComposer extends Composer {
         }
 
         const buttons = room.players.map(player => Markup.button.url(
-            (player.firstName || '') + (player.lastName ? ' ' + player.lastName : ''),
+            (player.firstName || '') + (player.lastName ? ' ' + player.lastName : ''), 
             `tg://user?id=${player.userId}`
         ));
         await ctx.reply('Players in the game room:', {
