@@ -15,13 +15,13 @@ const leaveGame = async (ctx) => {
   // Find the user
   const user = await User.findOne({ userId });
   if (!user) {
-    ctx.reply('You must be registered to leave a game room.');
+    ctx.answerCbQuery('You must be registered to leave a game room.');
     return;
   }
 
   // Check if the user is in the game room
   if (!room.players.includes(user._id)) {
-    ctx.reply('You are not in the game room.');
+    ctx.answerCbQuery('You are not in the game room.');
     return;
   }
 
@@ -33,7 +33,7 @@ const leaveGame = async (ctx) => {
   user.gameRoomId = null;
   await user.save();
 
-  ctx.reply('You have left the game room.');
+  ctx.answerCbQuery('You have left the game room.');
 };
 
 module.exports = leaveGame;

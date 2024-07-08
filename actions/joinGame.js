@@ -8,20 +8,20 @@ const joinGame = async (ctx) => {
   // Find the game room for this group
   const room = await GameRoom.findOne({ groupId });
   if (!room) {
-    ctx.reply('No game room exists in this group. Create one using /creategame');
+    ctx.answerCbQuery('No game room exists in this group. Create one using /creategame');
     return;
   }
 
   // Find the user
   const user = await User.findOne({ userId });
   if (!user) {
-    ctx.reply('You must be registered to join a game room.');
+    ctx.answerCbQuery('You must be registered to join a game room.');
     return;
   }
 
   // Check if the user is already in the game room
   if (room.players.includes(user._id)) {
-    ctx.reply('You are already in the game room.');
+    ctx.answerCbQuery('You are already in the game room.');
     return;
   }
 
@@ -33,7 +33,7 @@ const joinGame = async (ctx) => {
   user.gameRoomId = room._id;
   await user.save();
 
-  ctx.reply('You have joined the game room!');
+  ctx.answerCbQuery('You have joined the game room!');
 };
 
 module.exports = joinGame;
