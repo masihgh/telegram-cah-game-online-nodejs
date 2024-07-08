@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/masihgh/telegram-cah-game-online-nodejs/issues"
   },
-  "homepage": "https://github.com/masihgh/telegram-cah-game-online-nodejs#readme"
+  "homepage": "https://github.com/masihgh/telegram-cah-game-online-nodejs#readme",
+  "dependencies": {
+    "telegraf": "^4.16.3"
+  }
 }
