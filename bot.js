@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URI)
   });
 
 
-  // Middleware to add user to database
+// Middleware to add user to database
 bot.use(async (ctx, next) => {
   const userId = ctx.from.id;
 
