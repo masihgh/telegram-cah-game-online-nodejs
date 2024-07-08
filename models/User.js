@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String },
   firstName: { type: String },
   lastName: { type: String },
+  gameRoomId: { type: mongoose.Schema.Types.ObjectId, ref: 'GameRoom' },
   createdAt: { type: Date, default: Date.now },
 });
 
