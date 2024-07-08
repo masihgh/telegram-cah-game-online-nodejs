@@ -1,6 +1,7 @@
 const { Telegraf } = require('telegraf');
 const mongoose = require('mongoose');
 const addUser = require('./middleware/addUser');
+const GameComposer = require('./composers/GameComposer');
 require('dotenv').config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
@@ -17,6 +18,9 @@ mongoose.connect(process.env.MONGODB_URI, {}).then(() => {
 
 // Use the middleware
 bot.use(addUser);
+// Use the GameComposer
+const gameComposer = new GameComposer();
+bot.use(gameComposer);
 
 bot.start((ctx) => ctx.reply('Welcome'))
 bot.help((ctx) => ctx.reply('Send me a sticker'))
