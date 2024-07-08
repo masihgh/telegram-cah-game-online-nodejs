@@ -18,6 +18,11 @@ class GameComposer extends Composer {
     }
 
     async createGame(ctx) {
+        if (ctx.chat.type !== 'group' && ctx.chat.type !== 'supergroup') {
+            ctx.reply('This command can only be used in group chats.');
+            return;
+        }
+
         const groupId = ctx.chat.id;
         const userId = ctx.from.id;
 
@@ -44,18 +49,32 @@ class GameComposer extends Composer {
     }
 
     showJoinButton(ctx) {
+        if (ctx.chat.type !== 'group' && ctx.chat.type !== 'supergroup') {
+            ctx.reply('This command can only be used in group chats.');
+            return;
+        }
+
         ctx.reply('Press the button to join the game room', Markup.inlineKeyboard([
             Markup.button.callback('Join Game', `join_game_${ctx.chat.id}`)
         ]));
     }
 
     showLeaveButton(ctx) {
+        if (ctx.chat.type !== 'group' && ctx.chat.type !== 'supergroup') {
+            ctx.reply('This command can only be used in group chats.');
+            return;
+        }
         ctx.reply('Press the button to leave the game room', Markup.inlineKeyboard([
             Markup.button.callback('Leave Game', `leave_game_${ctx.chat.id}`)
         ]));
     }
 
     async joinGame(ctx) {
+        if (ctx.chat.type !== 'group' && ctx.chat.type !== 'supergroup') {
+            ctx.reply('This command can only be used in group chats.');
+            return;
+        }
+        
         const userId = ctx.from.id;
         const groupId = ctx.match[1];
 
@@ -83,6 +102,11 @@ class GameComposer extends Composer {
     }
 
     async leaveGame(ctx) {
+        if (ctx.chat.type !== 'group' && ctx.chat.type !== 'supergroup') {
+            ctx.reply('This command can only be used in group chats.');
+            return;
+        }
+
         const userId = ctx.from.id;
         const groupId = ctx.match[1];
 
@@ -141,6 +165,11 @@ class GameComposer extends Composer {
     }
 
     async DeleteGame (ctx){
+        if (ctx.chat.type !== 'group' && ctx.chat.type !== 'supergroup') {
+            ctx.reply('This command can only be used in group chats.');
+            return;
+        }
+
         const groupId = ctx.chat.id;
         const userId = ctx.from.id;
       
