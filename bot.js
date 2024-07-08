@@ -1,12 +1,18 @@
 const { Telegraf } = require('telegraf')
 const { message } = require('telegraf/filters')
-require('dotenv').config()
 const mongoose = require('mongoose');
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+require('dotenv').config()
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+
+const bot = new Telegraf(process.env.BOT_TOKEN, {
+    telegram: { 
+        apiRoot: process.env.WORKER_URL,
+     }
+  });
+
+
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB');
   })
@@ -15,8 +21,22 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
   });
 
 bot.start((ctx) => ctx.reply('Welcome'))
+bot.help((ctx) => ctx.reply('Send me a sticker'))
+bot.on(message('sticker'), (ctx) => ctx.reply('👍'))
+bot.hears('hi', (ctx) => ctx.reply('Hey there'))
+
+bot.hears('pol', (ctx) => {
+  ctx.replyWithPoll("Your favorite math constant", ["x", "e", "π", "φ", "γ"], {
+		is_anonymous: false,
+	})
+})
 
 
-// Enable graceful stop
+bot.on('poll_answer', (ctx) => {
+  console.log(ctx);
+})
+
+
+bot.launch()
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
