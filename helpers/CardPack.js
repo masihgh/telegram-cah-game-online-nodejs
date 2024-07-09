@@ -20,8 +20,10 @@ class CardPacks {
             files.forEach(file => {
                 if (file.endsWith('.json')) {
                     const filePath = path.join(this.folderPath, file);
+                    const packId = path.parse(file).name; // Get filename without extension as packId
                     const pack = JSON.parse(fs.readFileSync(filePath, 'utf8'));
                     cardPacks.push({
+                        id:packId,
                         name: pack.name,
                         data: pack
                     });
