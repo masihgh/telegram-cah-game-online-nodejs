@@ -14,6 +14,20 @@ const GameRoomSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
   }],
+  rounds: {
+    type: Number,
+    required: true,
+    default: 10,
+  },
+  cardPack: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'ongoing', 'finished'],
+    default: 'pending',
+  },
   createdAt: {
     type: Date,
     default: Date.now,
