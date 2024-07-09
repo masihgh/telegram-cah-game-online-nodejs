@@ -3,7 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 class CardPacks {
-    constructor(folderPath = path.join(__dirname, 'assets', 'cardPacks')) {
+    constructor(folderPath = path.join(__dirname, '..', 'assets', 'cardPacks')) {
         this.folderPath = folderPath;
         this.cardPacks = this.loadCardPacks();
     }
@@ -11,6 +11,11 @@ class CardPacks {
     loadCardPacks() {
         const cardPacks = [];
         try {
+            if (!fs.existsSync(this.folderPath)) {
+                console.error(`Error: Directory ${this.folderPath} does not exist.`);
+                return cardPacks;
+            }
+
             const files = fs.readdirSync(this.folderPath);
             files.forEach(file => {
                 if (file.endsWith('-pack.json')) {
@@ -51,11 +56,6 @@ class CardPacks {
         
         return Array.from(selectedCards);
     }
-
-    *[Symbol.iterator]() {
-        for (let pack of this.cardPacks) {
-            yield pack;
-        }
-    }
 }
+
 module.exports = CardPacks;

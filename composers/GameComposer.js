@@ -1,18 +1,21 @@
 const { Composer, Markup, Scenes, session } = require('telegraf');
 const GameRoom = require('../models/GameRoom');
 const User = require('../models/User');
+const CardPacks = require('../helpers/CardPack');
 
 // Wizard Steps
 const { WizardScene } = Scenes;
+const cardPacks = new CardPacks();
 
 const gameCreationWizard = new WizardScene(
     'game-creation-wizard',
     async (ctx) => {
         // Step 1: Choose Card Pack
-        ctx.reply('Please choose a card pack:', Markup.inlineKeyboard([
-            [Markup.button.callback('Card Pack 1', 'card_pack_1')],
-            [Markup.button.callback('Card Pack 2', 'card_pack_2')],
-        ]));
+        await ctx.reply('Please choose a card pack:', Markup.inlineKeyboard(
+            cardPacks.cardPacks.map((pack, index) => [
+                Markup.button.callback(`${pack.name} | ◼️: ${pack.data.black.length} ▫️: ${pack.data.white.length}`, `card_pack_${index + 1}`)
+            ])
+        ));
         return ctx.wizard.next();
     },
     async (ctx) => {
