@@ -13,7 +13,7 @@ const gameCreationWizard = new WizardScene(
         // Step 1: Choose Card Pack
         await ctx.reply('Please choose a card pack:', Markup.inlineKeyboard(
             cardPacks.cardPacks.map((pack, index) => [
-                Markup.button.callback(`${pack.name} | ◼️: ${pack.data.black.length} ▫️: ${pack.data.white.length}`, `card_pack_${index + 1}`)
+                Markup.button.callback(`${pack.name} | ◼️: ${pack?.data?.black?.length} ▫️: ${pack?.data?.white?.length}`, `card_pack_${index + 1}`)
             ])
         ));
         return ctx.wizard.next();
