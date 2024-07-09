@@ -2,61 +2,60 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-class CardPack {
+class CardPacks {
     constructor(folderPath = path.join(__dirname, 'assets', 'cardPacks')) {
         this.folderPath = folderPath;
-        this.packs = this.loadPacks();
+        this.cardPacks = this.loadCardPacks();
     }
 
-    loadPacks() {
-        const packs = {};
+    loadCardPacks() {
+        const cardPacks = [];
         try {
             const files = fs.readdirSync(this.folderPath);
             files.forEach(file => {
                 if (file.endsWith('-pack.json')) {
                     const filePath = path.join(this.folderPath, file);
                     const pack = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                    const packName = pack.name;
-                    packs[packName] = pack;
+                    cardPacks.push({
+                        name: pack.name,
+                        data: pack
+                    });
                 }
             });
         } catch (error) {
-            console.error(`Error loading packs from ${this.folderPath}:`, error);
+            console.error(`Error loading card packs from ${this.folderPath}:`, error);
         }
-        return packs;
+        return cardPacks;
     }
 
-    getPack(packName) {
-        return this.packs[packName] || null;
-    }
-
-    getNumBlackCards(packName) {
-        const pack = this.getPack(packName);
-        return pack ? pack.black.length : 0;
-    }
-
-    getNumWhiteCards(packName) {
-        const pack = this.getPack(packName);
-        return pack ? pack.white.length : 0;
+    getPackByName(packName) {
+        return this.cardPacks.find(pack => pack.name === packName) || null;
     }
 
     getRandomWhiteCard(packName) {
-        const pack = this.getPack(packName);
+        const pack = this.getPackByName(packName);
         if (!pack) return null;
-        const randomIndex = crypto.randomInt(0, pack.white.length);
-        return pack.white[randomIndex];
+        const randomIndex = crypto.randomInt(0, pack.data.white.length);
+        return pack.data.white[randomIndex];
     }
 
     selectRandomBlackCards(packName, count) {
-        const pack = this.getPack(packName);
+        const pack = this.getPackByName(packName);
         if (!pack) return [];
+        
         const selectedCards = new Set();
-        while (selectedCards.size < count && selectedCards.size < pack.black.length) {
-            const randomIndex = crypto.randomInt(0, pack.black.length);
-            selectedCards.add(pack.black[randomIndex]);
+        while (selectedCards.size < count && selectedCards.size < pack.data.black.length) {
+            const randomIndex = crypto.randomInt(0, pack.data.black.length);
+            selectedCards.add(pack.data.black[randomIndex]);
         }
+        
         return Array.from(selectedCards);
     }
-}
 
-module.exports = CardPack;
+    *[Symbol.iterator]() {
+        for (let pack of this.cardPacks) {
+            yield pack;
+        }
+    }
+}
+module.exports = CardPacks;
