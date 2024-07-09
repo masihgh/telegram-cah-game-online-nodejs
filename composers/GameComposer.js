@@ -1,6 +1,62 @@
-const { Composer, Markup } = require('telegraf');
+const { Composer, Markup, Scenes, session } = require('telegraf');
 const GameRoom = require('../models/GameRoom');
 const User = require('../models/User');
+
+// Wizard Steps
+const { WizardScene } = Scenes;
+
+const gameCreationWizard = new WizardScene(
+    'game-creation-wizard',
+    async (ctx) => {
+        // Step 1: Choose Card Pack
+        ctx.reply('Please choose a card pack:', Markup.inlineKeyboard([
+            [Markup.button.callback('Card Pack 1', 'card_pack_1')],
+            [Markup.button.callback('Card Pack 2', 'card_pack_2')],
+        ]));
+        return ctx.wizard.next();
+    },
+    async (ctx) => {
+        // Step 2: Choose Rounds
+        ctx.wizard.state.cardPack = ctx.callbackQuery.data;
+        ctx.reply('Please enter the number of rounds (1-10):');
+        return ctx.wizard.next();
+    },
+    async (ctx) => {
+        // Step 3: Create Game
+        const rounds = parseInt(ctx.message.text);
+        if (isNaN(rounds) || rounds < 1 || rounds > 10) {
+            ctx.reply('Invalid number of rounds. Please enter a number between 1 and 10:');
+            return;
+        }
+        
+        const groupId = ctx.chat.id;
+        const userId = ctx.from.id;
+        
+        const user = await User.findOne({ userId });
+        if (!user) {
+            ctx.reply('You must be registered to create a game room.');
+            return ctx.scene.leave();
+        }
+        
+        const existingRoom = await GameRoom.findOne({ groupId });
+        if (existingRoom) {
+            ctx.reply('A game room already exists in this group.');
+            return ctx.scene.leave();
+        }
+        
+        const newRoom = new GameRoom({
+            groupId,
+            createdBy: user._id,
+            players: [user._id],
+            cardPack: ctx.wizard.state.cardPack,
+            rounds: rounds,
+        });
+
+        await newRoom.save();
+        ctx.reply('Game room created! Players can join using /join');
+        return ctx.scene.leave();
+    }
+);
 
 class GameComposer extends Composer {
     constructor() {
@@ -9,7 +65,7 @@ class GameComposer extends Composer {
         // Bind methods to the class instance
         this.isGroupChat = this.isGroupChat.bind(this);
         this.isRegisteredUser = this.isRegisteredUser.bind(this);
-        this.createGame = this.createGame.bind(this);
+        this.createGameWizard = this.createGameWizard.bind(this);
         this.showJoinButton = this.showJoinButton.bind(this);
         this.showLeaveButton = this.showLeaveButton.bind(this);
         this.joinGame = this.joinGame.bind(this);
@@ -17,7 +73,10 @@ class GameComposer extends Composer {
         this.showPlayersList = this.showPlayersList.bind(this);
         this.deleteGame = this.deleteGame.bind(this);
 
-        this.command('creategame', this.createGame);
+        // Create Scene Manager and add Wizard
+        this.stage = new Scenes.Stage([gameCreationWizard]);
+
+        this.command('creategame', this.createGameWizard);
         this.command('join', this.showJoinButton);
         this.command('leave', this.showLeaveButton);
         this.command('players', this.showPlayersList);
@@ -44,27 +103,13 @@ class GameComposer extends Composer {
         return user;
     }
 
-    async createGame(ctx) {
+    async createGameWizard(ctx) {
         if (!(await this.isGroupChat(ctx))) return;
 
-        const groupId = ctx.chat.id;
         const user = await this.isRegisteredUser(ctx);
         if (!user) return;
 
-        const existingRoom = await GameRoom.findOne({ groupId });
-        if (existingRoom) {
-            await ctx.reply('A game room already exists in this group.');
-            return;
-        }
-
-        const newRoom = new GameRoom({
-            groupId,
-            createdBy: user._id,
-            players: [user._id],
-        });
-
-        await newRoom.save();
-        await ctx.reply('Game room created! Players can join using /join');
+        ctx.scene.enter('game-creation-wizard');
     }
 
     async showJoinButton(ctx) {
